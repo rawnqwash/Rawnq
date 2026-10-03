@@ -769,9 +769,11 @@ async function renderPackagesInPreview() {
       html += `
         <div class="package-card ${featuredClass}" data-pkg-id="${item.id}">
           <div class="item-manage-toolbar">
+            <button class="btn-move-arrow" onclick="movePackage('${item.id}', -1)" title="تحريك يمين">▶</button>
             <span class="drag-handle" title="اسحب للترتيب">⋮⋮</span>
             <button class="btn-edit-item" onclick="editPackage('${item.id}')" title="تعديل">✏️</button>
             <button class="btn-delete-item" onclick="deletePackage('${item.id}')" title="حذف">🗑️</button>
+            <button class="btn-move-arrow" onclick="movePackage('${item.id}', 1)" title="تحريك يسار">◀</button>
           </div>
           <h3 class="package-name">${pkg.name}</h3>
           <ul class="package-features">${featuresHtml}</ul>
@@ -812,9 +814,11 @@ async function renderProductsInPreview() {
       html += `
         <div class="product-card" data-prod-id="${docSnap.id}">
           <div class="item-manage-toolbar">
+            <button class="btn-move-arrow" onclick="moveProduct('${docSnap.id}', -1)" title="تحريك يمين">▶</button>
             <span class="drag-handle" title="اسحب للترتيب">⋮⋮</span>
             <button class="btn-edit-item" onclick="editProduct('${docSnap.id}')" title="تعديل">✏️</button>
             <button class="btn-delete-item" onclick="deleteProduct('${docSnap.id}')" title="حذف">🗑️</button>
+            <button class="btn-move-arrow" onclick="moveProduct('${docSnap.id}', 1)" title="تحريك يسار">◀</button>
           </div>
           <div class="product-image" style="${imageStyle}"></div>
           <div class="product-info">
@@ -934,3 +938,62 @@ function compressImage(file, maxWidth = 800, quality = 0.7) {
     reader.readAsDataURL(file);
   });
 }
+// ============ تحريك الباقات (للجوال) ============
+window.movePackage = async function(id, direction) {
+  try {
+    const q = query(collection(db, "packages"), orderBy("order"));
+    const snapshot = await getDocs(q);
+    const docs = [];
+    snapshot.forEach(d => docs.push({ id: d.id, order: d.data().order || 0 }));
+    
+    const currentIndex = docs.findIndex(d => d.id === id);
+    const targetIndex = currentIndex + direction;
+    
+    if (targetIndex < 0 || targetIndex >= docs.length) {
+      showToast('لا يمكن التحريك أكثر', 'error');
+      return;
+    }
+    
+    const currentOrder = docs[currentIndex].order;
+    const targetOrder = docs[targetIndex].order;
+    
+    await updateDoc(doc(db, "packages", docs[currentIndex].id), { order: targetOrder });
+    await updateDoc(doc(db, "packages", docs[targetIndex].id), { order: currentOrder });
+    
+    showToast('تم التحريك');
+    renderPackagesInPreview();
+  } catch (error) {
+    console.error(error);
+    showToast('خطأ في التحريك', 'error');
+  }
+};
+
+// ============ تحريك المنتجات (للجوال) ============
+window.moveProduct = async function(id, direction) {
+  try {
+    const q = query(collection(db, "products"), orderBy("order"));
+    const snapshot = await getDocs(q);
+    const docs = [];
+    snapshot.forEach(d => docs.push({ id: d.id, order: d.data().order || 0 }));
+    
+    const currentIndex = docs.findIndex(d => d.id === id);
+    const targetIndex = currentIndex + direction;
+    
+    if (targetIndex < 0 || targetIndex >= docs.length) {
+      showToast('لا يمكن التحريك أكثر', 'error');
+      return;
+    }
+    
+    const currentOrder = docs[currentIndex].order;
+    const targetOrder = docs[targetIndex].order;
+    
+    await updateDoc(doc(db, "products", docs[currentIndex].id), { order: targetOrder });
+    await updateDoc(doc(db, "products", docs[targetIndex].id), { order: currentOrder });
+    
+    showToast('تم التحريك');
+    renderProductsInPreview();
+  } catch (error) {
+    console.error(error);
+    showToast('خطأ في التحريك', 'error');
+  }
+};
