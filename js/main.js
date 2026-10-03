@@ -35,9 +35,11 @@ function hideSplash() {
 
 function preloadAllAssets() {
   return new Promise((resolve) => {
+    // نحمل بس الصور + فيديو الهيرو (الباقي يحمل خلف الكواليس)
     const images = document.querySelectorAll('img');
-    const videos = document.querySelectorAll('video');
-    totalAssets = images.length + videos.length;
+    const heroVideo = document.querySelector('.hero-video');
+    
+    totalAssets = images.length + (heroVideo ? 1 : 0);
     
     if (totalAssets === 0) { resolve(); return; }
     
@@ -56,19 +58,22 @@ function preloadAllAssets() {
       }
     });
     
-    videos.forEach(video => {
-      if (video.readyState >= 3) {
+    // فيديو الهيرو فقط (أول ما يبدأ التشغيل)
+    if (heroVideo) {
+      if (heroVideo.readyState >= 2) {
         assetLoaded();
       } else {
-        video.addEventListener('loadeddata', assetLoaded, { once: true });
-        video.addEventListener('error', assetLoaded, { once: true });
+        heroVideo.addEventListener('loadeddata', assetLoaded, { once: true });
+        heroVideo.addEventListener('error', assetLoaded, { once: true });
+        // لو ما حمل خلال 4 ثواني، نكمل عادي
+        setTimeout(assetLoaded, 4000);
       }
-    });
+    }
     
-    setTimeout(resolve, 15000);
+    // كحد أقصى 6 ثواني
+    setTimeout(resolve, 6000);
   });
 }
-
 // ============ فتح واتساب ============
 window.openWhatsApp = function(message = '') {
   const num = window.whatsappNumber || '966537795835';
@@ -307,7 +312,7 @@ Promise.all([
   loadPageContent(),
   loadPackages(),
   loadProducts(),
-  new Promise(resolve => setTimeout(resolve, 1500))
+  new Promise(resolve => setTimeout(resolve, 800))
 ]).then(() => {
   if (progressBar) progressBar.style.width = '100%';
   forcePlayAllVideos();
