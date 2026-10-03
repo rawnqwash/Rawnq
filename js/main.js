@@ -314,3 +314,62 @@ async function loadProducts() {
     container.innerHTML = '<p style="text-align:center;">حدث خطأ في التحميل</p>';
   }
 }
+
+// ============ تشغيل الفيديوهات في الجوال (iOS + Android) ============
+function forcePlayAllVideos() {
+  const videos = document.querySelectorAll('video');
+  videos.forEach(video => {
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.setAttribute('autoplay', '');
+    
+    const tryPlay = () => {
+      const p = video.play();
+      if (p && p.catch) p.catch(() => {});
+    };
+    
+    tryPlay();
+    
+    video.addEventListener('pause', () => {
+      setTimeout(tryPlay, 100);
+    });
+    
+    video.addEventListener('loadedmetadata', tryPlay);
+    video.addEventListener('canplay', tryPlay);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', forcePlayAllVideos);
+} else {
+  forcePlayAllVideos();
+}
+window.addEventListener('load', forcePlayAllVideos);
+
+const resumeOnInteraction = () => {
+  forcePlayAllVideos();
+};
+document.addEventListener('touchstart', resumeOnInteraction, { once: true, passive: true });
+document.addEventListener('click', resumeOnInteraction, { once: true });
+document.addEventListener('scroll', resumeOnInteraction, { once: true, passive: true });
+
+if ('IntersectionObserver' in window) {
+  const videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target;
+      if (entry.isIntersecting) {
+        video.muted = true;
+        const p = video.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  window.addEventListener('load', () => {
+    document.querySelectorAll('video').forEach(v => videoObserver.observe(v));
+  });
+}

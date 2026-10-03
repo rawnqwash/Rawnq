@@ -218,10 +218,11 @@ body.loading {
 
 html {
   scroll-behavior: smooth;
+  background: #061530;
 }
 
 body {
-  background: var(--white);
+  background: var(--navy);
   color: var(--navy);
   direction: rtl;
   line-height: 1.6;
@@ -766,10 +767,11 @@ body {
   border-radius: 30px;
   cursor: pointer;
   font-size: 15px;
-  margin-top: 15px;
+  margin: 15px auto 0;
   transition: all 0.3s;
   font-family: inherit;
   width: 80%;
+  display: block;
 }
 
 .btn-book:hover {
