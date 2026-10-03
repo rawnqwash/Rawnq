@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - رونق</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <!-- شاشة تحميل قبل التحقق من تسجيل الدخول -->
+  <div id="authCheck" class="auth-check">
+    <div class="loader"></div>
+    <p>جاري التحقق...</p>
+  </div>
+
+  <!-- المحتوى الرئيسي (يظهر بعد التحقق) -->
+  <div id="mainContent" style="display:none;">
+    
+    <!-- Sidebar -->
+       <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-logo">
+        <img src="assets/blue_logo.png" alt="رونق" onerror="this.style.display='none'">
+        <div class="header-logo-text">
+          <h2>رونق</h2>
+          <span>RAWNQ</span>
+        </div>
+      </div>
+      
+      <nav class="header-nav">
+        <button class="nav-item active" data-tab="content">
+          <span>📝</span> محتوى الصفحة
+        </button>
+        <button class="nav-item" data-tab="settings">
+          <span>⚙️</span> الإعدادات
+        </button>
+      </nav>
+      
+<div class="header-actions">
+  <a href="index.html" class="btn-home" title="الصفحة الرئيسية">
+    <span>🏠</span> الصفحة الرئيسية
+  </a>
+  <button class="btn-logout" id="logoutBtn" title="تسجيل خروج">
+    <span>🚪</span>
+  </button>
+</div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="main-header">
+        <h1 id="pageTitle">محتوى الصفحة</h1>
+      </header>
+
+      <!-- ================ Settings Tab ================ -->
+<section class="tab-content" id="settingsTab">
+          <div class="card">
+          <h2 class="card-title">إعدادات الموقع</h2>
+          <form id="settingsForm">
+            <div class="form-group">
+              <label>رقم الواتساب</label>
+              <input type="text" id="whatsappInput" placeholder="966537795835">
+              <small>الصيغة الدولية بدون + أو مسافات</small>
+            </div>
+            <div class="form-group">
+              <label>رقم الجوال للدخول (للمرجع فقط)</label>
+              <input type="text" id="adminPhoneInput" placeholder="966537795835">
+            </div>
+            <button type="submit" class="btn-primary">حفظ التغييرات</button>
+          </form>
+        </div>
+      </section>
+ <!-- ================ Content Tab (Live Preview) ================ -->
+<section class="tab-content active" id="contentTab">
+  <div class="content-toolbar">
+    <div class="content-toolbar-info">
+      <span>💡</span>
+      <span>اضغط على أي نص للتعديل</span>
+    </div>
+  </div>
+
+  <div class="preview-frame" id="previewFrame">
+    <div class="preview-loading">جاري التحميل...</div>
+  </div>
+  
+  <div class="save-bottom-bar">
+    <button class="btn-save-all" id="saveAllBtn">💾 حفظ جميع التغييرات</button>
+   </div>
+  </section>
+ </main>
+</div>
+
+  <!-- ================ Modal (نموذج الإضافة/التعديل) ================ -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">إضافة</h2>
+        <button class="btn-close" id="closeModal">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ================ Toast (رسائل نجاح/خطأ) ================ -->
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

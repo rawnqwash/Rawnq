@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول - رونق</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0A1E3F, #061530);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      direction: rtl;
+    }
+
+    .login-box {
+      background: white;
+      border-radius: 30px;
+      padding: 50px 40px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+.login-logo-img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  margin-bottom: 15px;
+}
+.login-logo-text {
+  font-family: 'Amiri', serif;
+  font-size: 60px;
+  color: #0A1E3F;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.login-logo-en {
+  display: block;
+  font-size: 18px;
+  letter-spacing: 6px;
+  color: #888;
+  margin-top: 8px;
+}
+.login-title {
+  display: none;
+}
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      color: #0A1E3F;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #E0E0E0;
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      direction: ltr;
+      text-align: right;
+      transition: border-color 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #1560BD;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: #0A1E3F;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-login:hover {
+      background: #1560BD;
+    }
+
+    .btn-login:disabled {
+      background: #888;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      background: #FFE0E0;
+      color: #B00020;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .back-link a {
+      color: #1560BD;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+/* شاشة الانتظار */
+.waiting-view {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.waiting-message {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #F5F7FA, #E8F0FA);
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.waiting-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  height: 80px;
+  gap: 12px;
+}
+
+.ai-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+}
+
+.ai-loader-ring {
+  display: none;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1560BD, #2E7CD6);
+  box-shadow: 
+    0 4px 10px rgba(21, 96, 189, 0.4),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.2),
+    inset 0 2px 3px rgba(255, 255, 255, 0.4);
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-bounce {
+  0%, 100% {
+    transform: translateY(15px) scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-15px) scale(1.1);
+    opacity: 1;
+    box-shadow: 
+      0 8px 15px rgba(21, 96, 189, 0.6),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.2),
+      inset 0 2px 3px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.waiting-title {
+  color: #0A1E3F;
+  font-size: 24px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.waiting-text {
+  color: #666;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* زر تحويل لتسجيل الدخول */
+.admin-toggle-btn {
+  width: 100%;
+  background: transparent;
+  color: #1560BD;
+  border: 2px dashed #1560BD;
+  padding: 14px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.admin-toggle-btn:hover {
+  background: #1560BD;
+  color: white;
+}
+
+/* شاشة تسجيل الدخول */
+.admin-view {
+  animation: fadeIn 0.4s ease;
+}
+
+.back-to-waiting {
+  background: transparent;
+  border: none;
+  color: #1560BD;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  margin-bottom: 15px;
+  padding: 5px;
+}
+
+.back-to-waiting:hover {
+  text-decoration: underline;
+}
+
+.admin-login-title {
+  text-align: center;
+  color: #0A1E3F;
+  font-size: 20px;
+  margin-bottom: 25px;
+  font-weight: 700;
+}
+  </style>
+</head>
+
+<body>
+
+  <div class="login-box">
+<div class="login-logo">
+  <img src="assets/blue_logo.png" alt="رونق" class="login-logo-img" onerror="this.style.display='none'">
+  <div class="login-logo-text">رونق</div>
+  <span class="login-logo-en">RAWNQ</span>
+</div>
+
+<!-- شاشة رسالة الانتظار (للعملاء) -->
+<div class="waiting-view" id="waitingView">
+  <div class="waiting-message">
+<div class="waiting-icon">
+  <div class="ai-loader">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+</div>
+    <h1 class="waiting-title">انتظرونا قريباً</h1>
+    <p class="waiting-text">
+      تسجيل الحسابات للعملاء سيتاح قريباً بإذن الله<br>
+      ترقبوا انطلاقة رونق!
+    </p>
+  </div>
+
+  <button class="admin-toggle-btn" id="showAdminLogin">
+    تسجيل دخول المالك ←
+  </button>
+</div>
+
+<!-- شاشة تسجيل الدخول (للمالك) -->
+<div class="admin-view" id="adminView" style="display:none;">
+  <button class="back-to-waiting" id="backToWaiting">→ رجوع</button>
+  
+  <h2 class="admin-login-title">تسجيل دخول المالك</h2>
+  
+  <form id="loginForm">
+    <div class="form-group">
+      <label class="form-label">رقم الجوال</label>
+      <input type="tel" id="phone" class="form-input" placeholder="أدخل رقم جوالك" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">كلمة المرور</label>
+      <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+    </div>
+
+    <button type="submit" class="btn-login" id="loginBtn">دخول</button>
+
+    <div class="error-message" id="errorMsg"></div>
+  </form>
+</div>
+
+<div class="back-link">
+  <a href="index.html">→ الرجوع للموقع</a>
+</div>
+</div>
+<script type="module">
+  import { auth } from './js/firebase-config.js';
+  import { 
+    signInWithEmailAndPassword,
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // ============ التحقق من الجلسة السابقة ============
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // التحقق من وقت آخر تسجيل دخول
+      const lastLoginTime = localStorage.getItem('rawnq_last_login');
+      const now = Date.now();
+      const FIFTEEN_MINUTES = 15 * 60 * 1000; // 15 دقيقة بالميلي ثانية
+      
+      if (lastLoginTime && (now - parseInt(lastLoginTime)) < FIFTEEN_MINUTES) {
+        // مسجل دخول ولم يمر ربع ساعة → روح للوحة التحكم مباشرة
+        window.location.href = 'admin.html';
+      }
+      // إذا مر أكثر من 15 دقيقة، يبقى في صفحة تسجيل الدخول عشان يعيد الدخول
+    }
+  });
+
+  const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const loginBtn = document.getElementById('loginBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      
+      // تحويل الرقم لصيغة إيميل
+      const email = `${phone}@rawnq.local`;
+      
+      errorMsg.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'جاري الدخول...';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // نجح الدخول - سجل الوقت
+        localStorage.setItem('rawnq_last_login', Date.now().toString());
+        window.location.href = 'admin.html';
+      } catch (error) {
+        console.error(error);
+        let message = 'حدث خطأ في تسجيل الدخول';
+        
+        if (error.code === 'auth/invalid-credential' || 
+            error.code === 'auth/wrong-password' || 
+            error.code === 'auth/user-not-found') {
+          message = 'رقم الجوال أو كلمة المرور غير صحيحة';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'محاولات كثيرة، حاول لاحقاً';
+        } else if (error.code === 'auth/network-request-failed') {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        
+        errorMsg.textContent = message;
+        errorMsg.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'دخول';
+      }
+    });
+  </script>
+<script>
+  // التبديل بين الشاشتين
+  document.getElementById('showAdminLogin').addEventListener('click', () => {
+    document.getElementById('waitingView').style.display = 'none';
+    document.getElementById('adminView').style.display = 'block';
+  });
+  
+  document.getElementById('backToWaiting').addEventListener('click', () => {
+    document.getElementById('adminView').style.display = 'none';
+    document.getElementById('waitingView').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
