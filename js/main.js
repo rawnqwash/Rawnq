@@ -1,4 +1,15 @@
-// ============ Splash Screen - تحميل حقيقي للمحتوى ============
+// main.js
+import { db } from './firebase-config.js';
+import { 
+  collection, 
+  getDocs, 
+  doc, 
+  getDoc,
+  query,
+  orderBy 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// ============ Splash Screen ============
 document.body.classList.add('loading');
 
 const progressBar = document.getElementById('progressBar');
@@ -22,28 +33,20 @@ function hideSplash() {
   }
 }
 
-// تحميل كل الصور والفيديوهات في الصفحة
 function preloadAllAssets() {
   return new Promise((resolve) => {
     const images = document.querySelectorAll('img');
     const videos = document.querySelectorAll('video');
-    
     totalAssets = images.length + videos.length;
     
-    if (totalAssets === 0) {
-      resolve();
-      return;
-    }
+    if (totalAssets === 0) { resolve(); return; }
     
     const assetLoaded = () => {
       loadedCount++;
       updateProgress();
-      if (loadedCount >= totalAssets) {
-        resolve();
-      }
+      if (loadedCount >= totalAssets) resolve();
     };
     
-    // تحميل الصور
     images.forEach(img => {
       if (img.complete && img.naturalWidth > 0) {
         assetLoaded();
@@ -53,7 +56,6 @@ function preloadAllAssets() {
       }
     });
     
-    // تحميل الفيديوهات
     videos.forEach(video => {
       if (video.readyState >= 3) {
         assetLoaded();
@@ -63,48 +65,27 @@ function preloadAllAssets() {
       }
     });
     
-    // كحد أقصى 15 ثانية
     setTimeout(resolve, 15000);
   });
 }
 
-// حد أدنى 2 ثانية عشان شاشة التحميل ما تختفي بسرعة
-// انتظار كل شي: الصور + الفيديوهات + Firebase + حد أدنى 2 ثانية
-Promise.all([
-  preloadAllAssets(),
-  loadSettings(),
-  loadPageContent(),
-  loadPackages(),
-  loadProducts(),
-  new Promise(resolve => setTimeout(resolve, 2000))
-]).then(() => {
-  if (progressBar) progressBar.style.width = '100%';
-  // انتظر نصف ثانية إضافية عشان الصور الجديدة تظهر
-  setTimeout(hideSplash, 500);
-});
-// main.js
-import { db } from './firebase-config.js';
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  getDoc,
-  query,
-  orderBy 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// ============ فتح واتساب ============
+window.openWhatsApp = function(message = '') {
+  const num = window.whatsappNumber || '966537795835';
+  const text = message ? `?text=${encodeURIComponent(message)}` : '';
+  window.open(`https://wa.me/${num}${text}`, '_blank');
+};
 
-// ============ تحميل الإعدادات (رقم الواتساب) ============
+// ============ تحميل الإعدادات ============
 async function loadSettings() {
   try {
     const settingsDoc = await getDoc(doc(db, "settings", "general"));
     if (settingsDoc.exists()) {
       const data = settingsDoc.data();
-      
       const whatsappBtn = document.getElementById('whatsappBtn');
       if (whatsappBtn && data.whatsapp) {
         whatsappBtn.href = `https://wa.me/${data.whatsapp}`;
       }
-      
       window.whatsappNumber = data.whatsapp;
     }
   } catch (error) {
@@ -112,7 +93,7 @@ async function loadSettings() {
   }
 }
 
-// ============ تحميل محتوى الصفحة من Firebase ============
+// ============ تحميل محتوى الصفحة ============
 async function loadPageContent() {
   try {
     const contentSnapshot = await getDocs(collection(db, "content"));
@@ -121,13 +102,11 @@ async function loadPageContent() {
       contentData[docSnap.id] = docSnap.data();
     });
     
-    // Hero
     if (contentData.hero) {
       const heroTitle = document.getElementById('heroTitle');
       const heroSubtitle = document.getElementById('heroSubtitle');
       if (heroTitle && contentData.hero.title) heroTitle.innerHTML = contentData.hero.title;
       if (heroSubtitle && contentData.hero.subtitle) heroSubtitle.innerHTML = contentData.hero.subtitle;
-      
       if (contentData.hero.video) {
         const heroVideo = document.querySelector('.hero-video source');
         if (heroVideo) {
@@ -137,7 +116,6 @@ async function loadPageContent() {
       }
     }
     
-    // About
     if (contentData.about) {
       updateBySelector('.about-section .section-tag', contentData.about.tag);
       updateBySelector('.about-title', contentData.about.title);
@@ -149,13 +127,10 @@ async function loadPageContent() {
       updateVideo('.about-image video source', contentData.about.video);
     }
     
-    // Services
     if (contentData.services) {
       updateBySelector('.services-section .section-tag', contentData.services.tag);
       updateBySelector('.services-title', contentData.services.title);
       updateVideo('.service-image-card video source', contentData.services.video);
-      
-      // 5 خدمات
       const serviceCards = document.querySelectorAll('.services-cards-right .service-card, .services-left .service-card');
       const serviceKeys = ['s1', 's2', 's3', 's4', 's5'];
       serviceCards.forEach((card, i) => {
@@ -172,18 +147,15 @@ async function loadPageContent() {
       });
     }
     
-    // Packages Header
     if (contentData.packages_header) {
       updateBySelector('.packages-section .section-title-white', contentData.packages_header.title);
       updateBySelector('.packages-section .section-subtitle', contentData.packages_header.subtitle);
     }
     
-    // Products Header
     if (contentData.products_header) {
       updateBySelector('.products-section .section-title', contentData.products_header.title);
     }
     
-    // Stats
     if (contentData.stats) {
       updateBySelector('.stats-section .section-title', contentData.stats.title);
       const statItems = document.querySelectorAll('.stat-item');
@@ -198,7 +170,6 @@ async function loadPageContent() {
       });
     }
     
-    // Footer
     if (contentData.footer) {
       updateBySelector('.footer-desc', contentData.footer.desc);
       const footerCol = document.querySelector('.footer-col:last-child');
@@ -209,7 +180,6 @@ async function loadPageContent() {
         if (paragraphs[2] && contentData.footer.email) paragraphs[2].textContent = contentData.footer.email;
       }
     }
-    
   } catch (error) {
     console.error("خطأ في تحميل المحتوى:", error);
   }
@@ -236,16 +206,10 @@ function updateVideo(selector, value) {
   }
 }
 
-// ============ فتح واتساب من زر اطلب الآن ============
-window.openWhatsApp = function(message = '') {
-  const num = window.whatsappNumber || '966537795835';
-  const text = message ? `?text=${encodeURIComponent(message)}` : '';
-  window.open(`https://wa.me/${num}${text}`, '_blank');
-};
-
 // ============ تحميل الباقات ============
 async function loadPackages() {
   const container = document.getElementById('packagesGrid');
+  if (!container) return;
   try {
     const q = query(collection(db, "packages"), orderBy("order"));
     const snapshot = await getDocs(q);
@@ -260,7 +224,6 @@ async function loadPackages() {
       const pkg = doc.data();
       const featuresHtml = (pkg.features || []).map(f => `<li>${f}</li>`).join('');
       const featuredClass = pkg.featured ? 'featured' : '';
-      
       html += `
         <div class="package-card ${featuredClass}">
           <h3 class="package-name">${pkg.name}</h3>
@@ -270,7 +233,6 @@ async function loadPackages() {
         </div>
       `;
     });
-    
     container.innerHTML = html;
   } catch (error) {
     console.error("خطأ في تحميل الباقات:", error);
@@ -281,6 +243,7 @@ async function loadPackages() {
 // ============ تحميل المنتجات ============
 async function loadProducts() {
   const container = document.getElementById('productsGrid');
+  if (!container) return;
   try {
     const q = query(collection(db, "products"), orderBy("order"));
     const snapshot = await getDocs(q);
@@ -296,7 +259,6 @@ async function loadProducts() {
       const imageStyle = product.image 
         ? `background-image: url('${product.image}')` 
         : 'background: #ddd';
-      
       html += `
         <div class="product-card">
           <div class="product-image" style="${imageStyle}"></div>
@@ -307,7 +269,6 @@ async function loadProducts() {
         </div>
       `;
     });
-    
     container.innerHTML = html;
   } catch (error) {
     console.error("خطأ في تحميل المنتجات:", error);
@@ -315,7 +276,7 @@ async function loadProducts() {
   }
 }
 
-// ============ تشغيل الفيديوهات في الجوال (iOS + Android) ============
+// ============ تشغيل الفيديوهات في الجوال ============
 function forcePlayAllVideos() {
   const videos = document.querySelectorAll('video');
   videos.forEach(video => {
@@ -333,30 +294,36 @@ function forcePlayAllVideos() {
     };
     
     tryPlay();
-    
-    video.addEventListener('pause', () => {
-      setTimeout(tryPlay, 100);
-    });
-    
+    video.addEventListener('pause', () => setTimeout(tryPlay, 100));
     video.addEventListener('loadedmetadata', tryPlay);
     video.addEventListener('canplay', tryPlay);
   });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', forcePlayAllVideos);
-} else {
+// ============ البدء الفعلي (في النهاية بعد تعريف كل الدوال) ============
+Promise.all([
+  preloadAllAssets(),
+  loadSettings(),
+  loadPageContent(),
+  loadPackages(),
+  loadProducts(),
+  new Promise(resolve => setTimeout(resolve, 1500))
+]).then(() => {
+  if (progressBar) progressBar.style.width = '100%';
   forcePlayAllVideos();
-}
-window.addEventListener('load', forcePlayAllVideos);
+  setTimeout(hideSplash, 500);
+}).catch(() => {
+  if (progressBar) progressBar.style.width = '100%';
+  setTimeout(hideSplash, 500);
+});
 
-const resumeOnInteraction = () => {
-  forcePlayAllVideos();
-};
-document.addEventListener('touchstart', resumeOnInteraction, { once: true, passive: true });
-document.addEventListener('click', resumeOnInteraction, { once: true });
-document.addEventListener('scroll', resumeOnInteraction, { once: true, passive: true });
+// تشغيل الفيديوهات عند التفاعل
+const resumeOnInteraction = () => forcePlayAllVideos();
+document.addEventListener('touchstart', resumeOnInteraction, { passive: true });
+document.addEventListener('click', resumeOnInteraction);
+document.addEventListener('scroll', resumeOnInteraction, { passive: true });
 
+// Intersection Observer للفيديوهات
 if ('IntersectionObserver' in window) {
   const videoObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
