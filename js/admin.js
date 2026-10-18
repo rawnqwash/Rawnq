@@ -94,6 +94,14 @@ async function loadSettings() {
 
 document.getElementById('settingsForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (submitBtn.disabled) return;
+  
+  const originalText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="btn-spinner"></span> جاري الحفظ...';
+  
   try {
     await setDoc(doc(db, "settings", "general"), {
       whatsapp: document.getElementById('whatsappInput').value.trim(),
@@ -103,6 +111,9 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
   } catch (error) {
     console.error(error);
     showToast('خطأ في الحفظ', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
   }
 });
 
@@ -206,6 +217,14 @@ function openPackageModal(id = null, data = {}) {
   
   document.getElementById('packageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return; // منع الضغط المتكرر
+    
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="btn-spinner"></span> جاري الحفظ...';
+    
     const featuresInputs = document.querySelectorAll('#featuresContainer .feature-input');
     const features = Array.from(featuresInputs).map(i => i.value.trim()).filter(v => v);
     
@@ -215,12 +234,10 @@ function openPackageModal(id = null, data = {}) {
       features: features
     };
     
-    // للإضافة الجديدة: ترتيب تلقائي (آخر عنصر)
     if (!id) {
       const allSnap = await getDocs(collection(db, "packages"));
       packageData.order = allSnap.size + 1;
     } else {
-      // للتعديل: خله كما هو
       packageData.order = data.order || 1;
     }
     
@@ -236,6 +253,8 @@ function openPackageModal(id = null, data = {}) {
     } catch (error) {
       console.error(error);
       showToast('خطأ في الحفظ', 'error');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
     }
   });
 }
@@ -377,6 +396,14 @@ function openProductModal(id = null, data = {}) {
   
   document.getElementById('productForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return;
+    
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="btn-spinner"></span> جاري الحفظ...';
+    
     const imageValue = document.getElementById('prodImage').value.trim();
     
     const productData = {
@@ -404,6 +431,8 @@ function openProductModal(id = null, data = {}) {
     } catch (error) {
       console.error(error);
       showToast('خطأ في الحفظ', 'error');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
     }
   });
 }
@@ -713,7 +742,6 @@ window.changeMedia = function(section, field, currentValue) {
   showToast('تعديل الصور والفيديو من مجلد assets يدوياً فقط', 'error');
 };
 
-// زر الحفظ الكلي
 document.getElementById('saveAllBtn').addEventListener('click', async () => {
   if (Object.keys(editedFields).length === 0) {
     showToast('لا توجد تغييرات للحفظ', 'error');
@@ -721,9 +749,10 @@ document.getElementById('saveAllBtn').addEventListener('click', async () => {
   }
   
   const btn = document.getElementById('saveAllBtn');
+  if (btn.disabled) return;
   btn.disabled = true;
-  btn.textContent = 'جاري الحفظ...';
-  
+  btn.innerHTML = '<span class="btn-spinner"></span> جاري الحفظ...';
+
   try {
     for (const section in editedFields) {
       await setDoc(doc(db, "content", section), editedFields[section], { merge: true });
