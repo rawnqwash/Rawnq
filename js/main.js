@@ -306,24 +306,25 @@ function forcePlayAllVideos() {
   });
 }
 
-// ============ البدء الفعلي (في النهاية بعد تعريف كل الدوال) ============
 Promise.all([
   preloadAllAssets(),
   loadSettings(),
   loadPageContent(),
   loadPackages(),
   loadProducts(),
+  loadReviews(),
   new Promise(resolve => setTimeout(resolve, 800))
 ]).then(() => {
   if (progressBar) progressBar.style.width = '100%';
   forcePlayAllVideos();
+  initReviewModal();
   setTimeout(hideSplash, 500);
 }).catch(() => {
   if (progressBar) progressBar.style.width = '100%';
+  initReviewModal();
   setTimeout(hideSplash, 500);
 });
 
-// تشغيل الفيديوهات عند التفاعل
 const resumeOnInteraction = () => forcePlayAllVideos();
 document.addEventListener('touchstart', resumeOnInteraction, { passive: true });
 document.addEventListener('click', resumeOnInteraction);
@@ -502,13 +503,3 @@ function initReviewModal() {
   });
 }
 
-// شغّل النموذج والآراء بعد تحميل كل شي
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    initReviewModal();
-    loadReviews();
-  });
-} else {
-  initReviewModal();
-  loadReviews();
-}
