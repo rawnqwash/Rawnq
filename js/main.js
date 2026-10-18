@@ -345,3 +345,154 @@ if ('IntersectionObserver' in window) {
     document.querySelectorAll('video').forEach(v => videoObserver.observe(v));
   });
 }
+// ============ تحميل الآراء ============
+import { addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+async function loadReviews() {
+  const container = document.getElementById('reviewsGrid');
+  if (!container) return;
+  
+  try {
+    const q = query(collection(db, "reviews"), orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="text-align:center;color:#888;grid-column:1/-1;">كن أول من يشارك رأيه!</p>';
+      return;
+    }
+    
+    let html = '';
+    let index = 0;
+    snapshot.forEach(docSnap => {
+      const r = docSnap.data();
+      const rating = Math.min(Math.max(parseInt(r.rating) || 5, 1), 5);
+      const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      const darkClass = (index % 2 === 1) ? 'review-dark' : 'review-light';
+      
+      html += `
+        <div class="review-card ${darkClass}">
+          <div class="review-header">
+            <div class="review-avatar">👤</div>
+            <div>
+              <p class="review-text">${escapeHtml(r.text)}</p>
+              <p class="review-author">${escapeHtml(r.name)}</p>
+              <div class="review-stars">${stars}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      index++;
+    });
+    
+    container.innerHTML = html;
+  } catch (error) {
+    console.error("خطأ في تحميل الآراء:", error);
+    container.innerHTML = '<p style="text-align:center;color:#888;">تعذر تحميل الآراء</p>';
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
+}
+
+// ============ نموذج إضافة رأي ============
+let selectedRating = 0;
+
+function initReviewModal() {
+  const modal = document.getElementById('reviewModal');
+  const openBtn = document.getElementById('addReviewBtn');
+  const closeBtn = document.getElementById('closeReviewModal');
+  const form = document.getElementById('reviewForm');
+  const stars = document.querySelectorAll('#starsInput span');
+  const errorBox = document.getElementById('reviewError');
+  const submitBtn = document.getElementById('submitReviewBtn');
+  
+  if (!modal || !openBtn) return;
+  
+  openBtn.addEventListener('click', () => {
+    modal.classList.add('show');
+    selectedRating = 5;
+    updateStars(5);
+  });
+  
+  closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('show');
+  });
+  
+  // النجوم
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.value);
+      updateStars(selectedRating);
+    });
+    star.addEventListener('mouseenter', () => {
+      const val = parseInt(star.dataset.value);
+      stars.forEach(s => {
+        s.classList.toggle('hovered', parseInt(s.dataset.value) <= val);
+      });
+    });
+    star.addEventListener('mouseleave', () => {
+      stars.forEach(s => s.classList.remove('hovered'));
+    });
+  });
+  
+  function updateStars(value) {
+    stars.forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.value) <= value);
+    });
+  }
+  
+  // الإرسال
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.remove('show');
+    
+    const name = document.getElementById('reviewName').value.trim();
+    const text = document.getElementById('reviewText').value.trim();
+    
+    if (!name || !text) {
+      errorBox.textContent = 'يرجى تعبئة جميع الحقول';
+      errorBox.classList.add('show');
+      return;
+    }
+    
+    if (selectedRating < 1 || selectedRating > 5) {
+      errorBox.textContent = 'يرجى اختيار تقييم';
+      errorBox.classList.add('show');
+      return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جاري الإرسال...';
+    
+    try {
+      await addDoc(collection(db, "reviews"), {
+        name: name,
+        text: text,
+        rating: selectedRating,
+        timestamp: Date.now()
+      });
+      
+      form.reset();
+      modal.classList.remove('show');
+      loadReviews();
+      alert('شكراً لك! تم إرسال رأيك بنجاح 💙');
+    } catch (error) {
+      console.error(error);
+      errorBox.textContent = 'حدث خطأ، حاول مرة ثانية';
+      errorBox.classList.add('show');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'إرسال الرأي';
+    }
+  });
+}
+
+// شغّل النموذج والآراء عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', () => {
+  initReviewModal();
+  loadReviews();
+});

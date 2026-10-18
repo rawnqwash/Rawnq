@@ -197,51 +197,46 @@
   </section>
 <!-- ========== Divider ========== -->
 <div class="section-divider"></div>
-  <!-- ========== Reviews ========== -->
-  <section class="section reviews-section">
-    <div class="reviews-grid">
-      <div class="review-card review-light">
-        <div class="review-header">
-          <div class="review-avatar">👤</div>
-          <div>
-            <p class="review-text">وصل الفريق في الموعد، والسيارة أصبحت كأنها جديدة.</p>
-            <p class="review-author">خالد م.</p>
-            <div class="review-stars">★★★★★</div>
-          </div>
+<!-- ========== Reviews ========== -->
+<section class="section reviews-section">
+  <div class="reviews-header-top">
+    <h2 class="reviews-main-title">آراء عملائنا</h2>
+    <button class="btn-add-review" id="addReviewBtn">+ اكتب رأيك</button>
+  </div>
+  <div class="reviews-grid" id="reviewsGrid">
+    <div class="loading" style="color:#888;">جاري تحميل الآراء...</div>
+  </div>
+</section>
+
+<!-- ========== Review Modal ========== -->
+<div class="review-modal" id="reviewModal">
+  <div class="review-modal-content">
+    <button class="review-modal-close" id="closeReviewModal">×</button>
+    <h2>شاركنا رأيك</h2>
+    <form id="reviewForm">
+      <div class="form-group-review">
+        <label>اسمك</label>
+        <input type="text" id="reviewName" maxlength="40" required placeholder="مثال: خالد م.">
+      </div>
+      <div class="form-group-review">
+        <label>تقييمك</label>
+        <div class="stars-input" id="starsInput">
+          <span data-value="1">★</span>
+          <span data-value="2">★</span>
+          <span data-value="3">★</span>
+          <span data-value="4">★</span>
+          <span data-value="5">★</span>
         </div>
       </div>
-      <div class="review-card review-dark">
-        <div class="review-header">
-          <div class="review-avatar">👤</div>
-          <div>
-            <p class="review-text">الحجز كان سهلاً والخدمة سريعة جداً.</p>
-            <p class="review-author">نورة س.</p>
-            <div class="review-stars">★★★★★</div>
-          </div>
-        </div>
+      <div class="form-group-review">
+        <label>رأيك</label>
+        <textarea id="reviewText" maxlength="400" rows="4" required placeholder="شاركنا تجربتك مع رونق..."></textarea>
       </div>
-      <div class="review-card review-dark">
-        <div class="review-header">
-          <div class="review-avatar">👤</div>
-          <div>
-            <p class="review-text">أفضل خدمة عناية بالسيارة جربتها، وأنصح بها.</p>
-            <p class="review-author">محمد ع.</p>
-            <div class="review-stars">★★★★★</div>
-          </div>
-        </div>
-      </div>
-      <div class="review-card review-light">
-        <div class="review-header">
-          <div class="review-avatar">👤</div>
-          <div>
-            <p class="review-text">أعجبني الاهتمام بالتفاصيل ورائحة المعطر رائعة.</p>
-            <p class="review-author">عبدالله أ.</p>
-            <div class="review-stars">★★★★★</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+      <button type="submit" class="btn-submit-review" id="submitReviewBtn">إرسال الرأي</button>
+      <div class="review-error" id="reviewError"></div>
+    </form>
+  </div>
+</div>
 
   <!-- ========== WhatsApp Float ========== -->
   <a href="#" class="whatsapp-float" id="whatsappBtn" target="_blank">
