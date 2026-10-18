@@ -29,14 +29,17 @@
         </div>
       </div>
       
-      <nav class="header-nav">
-        <button class="nav-item active" data-tab="content">
-          <span>📝</span> محتوى الصفحة
-        </button>
-        <button class="nav-item" data-tab="settings">
-          <span>⚙️</span> الإعدادات
-        </button>
-      </nav>
+<nav class="header-nav">
+  <button class="nav-item active" data-tab="content">
+    <span>📝</span> محتوى الصفحة
+  </button>
+  <button class="nav-item" data-tab="reviews">
+    <span>💬</span> آراء العملاء
+  </button>
+  <button class="nav-item" data-tab="settings">
+    <span>⚙️</span> الإعدادات
+  </button>
+</nav>
       
 <div class="header-actions">
   <a href="index.html" class="btn-home" title="الصفحة الرئيسية">
@@ -55,6 +58,15 @@
       </header>
 
       <!-- ================ Settings Tab ================ -->
+
+<section class="tab-content" id="reviewsTab">
+  <div class="card">
+    <h2 class="card-title">💬 آراء العملاء</h2>
+    <div id="adminReviewsList">
+      <div class="loading">جاري التحميل...</div>
+    </div>
+  </div>
+</section>
 <section class="tab-content" id="settingsTab">
           <div class="card">
           <h2 class="card-title">إعدادات الموقع</h2>

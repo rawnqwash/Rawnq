@@ -46,6 +46,7 @@ const pageTitle = document.getElementById('pageTitle');
 
 const titles = {
   content: 'محتوى الصفحة',
+  reviews: 'آراء العملاء',
   settings: 'الإعدادات'
 };
 
@@ -65,6 +66,7 @@ tabs.forEach(tab => {
 async function initDashboard() {
   await loadSettings();
   await loadContent();
+  await loadAdminReviews();
 }
 
 // ============ Toast (رسائل) ============
@@ -995,5 +997,129 @@ window.moveProduct = async function(id, direction) {
   } catch (error) {
     console.error(error);
     showToast('خطأ في التحريك', 'error');
+  }
+};
+// ============ آراء العملاء (للوحة التحكم) ============
+async function loadAdminReviews() {
+  const container = document.getElementById('adminReviewsList');
+  if (!container) return;
+  
+  try {
+    const q = query(collection(db, "reviews"), orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="loading">لا توجد آراء بعد</div>';
+      return;
+    }
+    
+    let html = '';
+    snapshot.forEach(docSnap => {
+      const r = docSnap.data();
+      const id = docSnap.id;
+      if (!r.name || !r.text) return;
+      
+      const rating = Math.min(Math.max(parseInt(r.rating) || 5, 1), 5);
+      const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      const date = r.timestamp ? new Date(r.timestamp).toLocaleDateString('ar-SA') : '';
+      
+      const replyHtml = r.reply ? `
+        <div class="admin-review-reply">
+          <div class="reply-head">
+            <strong>💙 ردك:</strong>
+            <button class="btn-reply-del" onclick="adminDeleteReply('${id}')">حذف الرد</button>
+          </div>
+          <p>${escapeAdminHtml(r.reply)}</p>
+        </div>
+      ` : `
+        <div class="admin-reply-box">
+          <textarea id="adminReply-${id}" placeholder="اكتب ردك على هذا الرأي..." maxlength="300" rows="2"></textarea>
+          <button class="btn-primary" onclick="adminSubmitReply('${id}')">💬 إرسال الرد</button>
+        </div>
+      `;
+      
+      const hiddenBadge = r.hidden ? '<span class="hidden-badge">🙈 مخفي</span>' : '';
+      
+      html += `
+        <div class="admin-review-item ${r.hidden ? 'hidden-review' : ''}">
+          <div class="admin-review-header">
+            <div>
+              <h3>${escapeAdminHtml(r.name)} ${hiddenBadge}</h3>
+              <div class="admin-review-meta">
+                <span class="admin-stars">${stars}</span>
+                <span class="admin-date">${date}</span>
+              </div>
+            </div>
+            <div class="admin-review-actions">
+              <button class="btn-toggle-hide" onclick="adminToggleHide('${id}', ${r.hidden ? 'false' : 'true'})">
+                ${r.hidden ? '👁️ إظهار' : '🙈 إخفاء'}
+              </button>
+              <button class="btn-danger" onclick="adminDeleteReview('${id}')">🗑️ حذف</button>
+            </div>
+          </div>
+          <p class="admin-review-text">${escapeAdminHtml(r.text)}</p>
+          ${replyHtml}
+        </div>
+      `;
+    });
+    
+    container.innerHTML = html;
+  } catch (error) {
+    console.error(error);
+    container.innerHTML = '<div class="loading">خطأ في التحميل</div>';
+  }
+}
+
+function escapeAdminHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
+}
+
+window.adminSubmitReply = async function(id) {
+  const textarea = document.getElementById('adminReply-' + id);
+  const text = textarea.value.trim();
+  if (!text) {
+    showToast('اكتب رد قبل الإرسال', 'error');
+    return;
+  }
+  try {
+    await updateDoc(doc(db, "reviews", id), { reply: text });
+    showToast('تم إرسال الرد');
+    loadAdminReviews();
+  } catch (error) {
+    showToast('خطأ في الإرسال', 'error');
+  }
+};
+
+window.adminDeleteReply = async function(id) {
+  if (!confirm('تبي تحذف الرد؟')) return;
+  try {
+    await updateDoc(doc(db, "reviews", id), { reply: null });
+    showToast('تم حذف الرد');
+    loadAdminReviews();
+  } catch (error) {
+    showToast('خطأ في الحذف', 'error');
+  }
+};
+
+window.adminDeleteReview = async function(id) {
+  if (!confirm('تبي تحذف الرأي نهائياً؟')) return;
+  try {
+    await deleteDoc(doc(db, "reviews", id));
+    showToast('تم الحذف');
+    loadAdminReviews();
+  } catch (error) {
+    showToast('خطأ في الحذف', 'error');
+  }
+};
+
+window.adminToggleHide = async function(id, hide) {
+  try {
+    await updateDoc(doc(db, "reviews", id), { hidden: hide });
+    showToast(hide ? 'تم الإخفاء' : 'تم الإظهار');
+    loadAdminReviews();
+  } catch (error) {
+    showToast('خطأ', 'error');
   }
 };

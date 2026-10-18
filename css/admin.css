@@ -924,3 +924,136 @@ body {
     display: none;
   }
 }
+/* ============ Admin Reviews ============ */
+.admin-review-item {
+  background: var(--gray-light);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-right: 4px solid var(--blue);
+}
+
+.admin-review-item.hidden-review {
+  opacity: 0.6;
+  border-right-color: #999;
+}
+
+.admin-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-review-header h3 {
+  color: var(--navy);
+  font-size: 17px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hidden-badge {
+  background: #999;
+  color: white;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: normal;
+}
+
+.admin-review-meta {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.admin-stars {
+  color: #FFD700;
+  letter-spacing: 2px;
+}
+
+.admin-date {
+  color: var(--gray);
+}
+
+.admin-review-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-toggle-hide {
+  background: #FFA500;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.btn-toggle-hide:hover {
+  background: #e59400;
+}
+
+.admin-review-text {
+  color: var(--navy);
+  line-height: 1.7;
+  margin: 10px 0;
+}
+
+.admin-reply-box {
+  margin-top: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 10px;
+  border: 1px dashed #ccc;
+}
+
+.admin-reply-box textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  direction: rtl;
+  margin-bottom: 10px;
+}
+
+.admin-review-reply {
+  margin-top: 12px;
+  padding: 12px 15px;
+  background: rgba(21,96,189,0.1);
+  border-right: 3px solid var(--blue);
+  border-radius: 8px;
+}
+
+.reply-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.btn-reply-del {
+  background: transparent;
+  color: #EF4444;
+  border: 1px solid #EF4444;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-reply-del:hover {
+  background: #EF4444;
+  color: white;
+}
