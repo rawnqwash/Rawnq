@@ -1341,3 +1341,134 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* ============ Owner Actions on Reviews ============ */
+.review-owner-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(128,128,128,0.3);
+}
+
+.btn-review-reply,
+.btn-review-delete {
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-review-reply {
+  background: var(--blue);
+  color: white;
+}
+
+.btn-review-reply:hover {
+  background: var(--navy);
+}
+
+.btn-review-delete {
+  background: #EF4444;
+  color: white;
+}
+
+.btn-review-delete:hover {
+  background: #c73434;
+}
+
+/* ============ Reply Box ============ */
+.reply-box {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(21,96,189,0.1);
+  border-radius: 10px;
+}
+
+.reply-box textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 60px;
+  direction: rtl;
+}
+
+.reply-box-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-reply-submit,
+.btn-reply-cancel {
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.btn-reply-submit {
+  background: var(--blue);
+  color: white;
+}
+
+.btn-reply-cancel {
+  background: #ccc;
+  color: #333;
+}
+
+/* ============ Reply Display ============ */
+.review-reply {
+  margin-top: 15px;
+  padding: 12px 15px;
+  background: rgba(21,96,189,0.15);
+  border-right: 3px solid var(--blue);
+  border-radius: 8px;
+  position: relative;
+}
+
+.review-dark .review-reply {
+  background: rgba(255,255,255,0.1);
+}
+
+.reply-label {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--blue);
+}
+
+.review-dark .reply-label {
+  color: #6ea9e8;
+}
+
+.review-reply p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.btn-reply-delete {
+  background: transparent;
+  color: #EF4444;
+  border: 1px solid #EF4444;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  font-family: inherit;
+}
+
+.btn-reply-delete:hover {
+  background: #EF4444;
+  color: white;
+}

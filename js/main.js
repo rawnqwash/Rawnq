@@ -1,5 +1,7 @@
 // main.js
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
   collection, 
   getDocs, 
@@ -346,8 +348,6 @@ if ('IntersectionObserver' in window) {
   });
 }
 // ============ تحميل الآراء ============
-import { addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
 async function loadReviews() {
   const container = document.getElementById('reviewsGrid');
   if (!container) return;
@@ -365,18 +365,51 @@ async function loadReviews() {
     let index = 0;
     snapshot.forEach(docSnap => {
       const r = docSnap.data();
+      const id = docSnap.id;
+      
+      // تخطي الآراء الفارغة
+      if (!r.name || !r.text) return;
+      
       const rating = Math.min(Math.max(parseInt(r.rating) || 5, 1), 5);
       const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
       const darkClass = (index % 2 === 1) ? 'review-dark' : 'review-light';
+      
+      const ownerActions = isOwnerLoggedIn ? `
+        <div class="review-owner-actions">
+          <button class="btn-review-reply" onclick="openReplyBox('${id}')">💬 رد</button>
+          <button class="btn-review-delete" onclick="deleteReview('${id}')">🗑️ حذف</button>
+        </div>
+      ` : '';
+      
+      const replyHtml = r.reply ? `
+        <div class="review-reply">
+          <div class="reply-label">💙 رد المالك:</div>
+          <p>${escapeHtml(r.reply)}</p>
+          ${isOwnerLoggedIn ? `<button class="btn-reply-delete" onclick="deleteReply('${id}')">حذف الرد</button>` : ''}
+        </div>
+      ` : '';
+      
+      const replyBox = isOwnerLoggedIn ? `
+        <div class="reply-box" id="replyBox-${id}" style="display:none;">
+          <textarea id="replyText-${id}" placeholder="اكتب ردك..." maxlength="300"></textarea>
+          <div class="reply-box-actions">
+            <button onclick="submitReply('${id}')" class="btn-reply-submit">إرسال</button>
+            <button onclick="closeReplyBox('${id}')" class="btn-reply-cancel">إلغاء</button>
+          </div>
+        </div>
+      ` : '';
       
       html += `
         <div class="review-card ${darkClass}">
           <div class="review-header">
             <div class="review-avatar">👤</div>
-            <div>
+            <div style="flex:1;">
               <p class="review-text">${escapeHtml(r.text)}</p>
               <p class="review-author">${escapeHtml(r.name)}</p>
               <div class="review-stars">${stars}</div>
+              ${replyHtml}
+              ${replyBox}
+              ${ownerActions}
             </div>
           </div>
         </div>
@@ -384,7 +417,7 @@ async function loadReviews() {
       index++;
     });
     
-    container.innerHTML = html;
+    container.innerHTML = html || '<p style="text-align:center;color:#888;grid-column:1/-1;">كن أول من يشارك رأيه!</p>';
   } catch (error) {
     console.error("خطأ في تحميل الآراء:", error);
     container.innerHTML = '<p style="text-align:center;color:#888;">تعذر تحميل الآراء</p>';
@@ -399,7 +432,13 @@ function escapeHtml(text) {
 
 // ============ نموذج إضافة رأي ============
 let selectedRating = 0;
+let isOwnerLoggedIn = false;
 
+// مراقبة حالة تسجيل الدخول
+onAuthStateChanged(auth, (user) => {
+  isOwnerLoggedIn = !!user;
+  loadReviews();
+});
 function initReviewModal() {
   const modal = document.getElementById('reviewModal');
   const openBtn = document.getElementById('addReviewBtn');
@@ -496,3 +535,53 @@ document.addEventListener('DOMContentLoaded', () => {
   initReviewModal();
   loadReviews();
 });
+// ============ دوال المالك (الرد والحذف) ============
+window.openReplyBox = function(id) {
+  const box = document.getElementById('replyBox-' + id);
+  if (box) box.style.display = 'block';
+};
+
+window.closeReplyBox = function(id) {
+  const box = document.getElementById('replyBox-' + id);
+  if (box) box.style.display = 'none';
+};
+
+window.submitReply = async function(id) {
+  const textarea = document.getElementById('replyText-' + id);
+  const text = textarea.value.trim();
+  
+  if (!text) {
+    alert('اكتب رد قبل الإرسال');
+    return;
+  }
+  
+  try {
+    await updateDoc(doc(db, "reviews", id), { reply: text });
+    loadReviews();
+  } catch (error) {
+    console.error(error);
+    alert('خطأ في إرسال الرد');
+  }
+};
+
+window.deleteReview = async function(id) {
+  if (!confirm('تبي تحذف هذا الرأي؟')) return;
+  try {
+    await deleteDoc(doc(db, "reviews", id));
+    loadReviews();
+  } catch (error) {
+    console.error(error);
+    alert('خطأ في الحذف');
+  }
+};
+
+window.deleteReply = async function(id) {
+  if (!confirm('تبي تحذف الرد؟')) return;
+  try {
+    await updateDoc(doc(db, "reviews", id), { reply: null });
+    loadReviews();
+  } catch (error) {
+    console.error(error);
+    alert('خطأ في الحذف');
+  }
+};
